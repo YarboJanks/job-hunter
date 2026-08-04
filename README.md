@@ -91,6 +91,10 @@ Run `python jobhunter.py` and you'll get:
 ╚════════════════════════════════════════════════════════════════════╝
 ```
 
+Here's the actual Outrun-themed color palette in action:
+
+![Job Hunter retro menu screenshot](docs/menu_screenshot.svg)
+
 - **[1] Run Job Search** — checks that Adzuna/Jooble keys are present
   (prompting for any missing ones first), then runs `main.py`.
 - **[2] Update Resume / Refresh Search Criteria** — checks for an OpenAI
