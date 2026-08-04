@@ -50,6 +50,33 @@ required.
 > offer a self-serve public API for this use case. Set up their official
 > job-alert emails instead as a manual supplement — see below.
 
+## Download a pre-built app (no Python required)
+
+Every tagged release publishes standalone executables for **macOS** and
+**Windows** — no Python install, no `pip`, no terminal setup needed to get
+running:
+
+1. Go to the [Releases page](../../releases) and download the zip for your
+   OS (`JobHunter-macos.zip` or `JobHunter-windows.zip`).
+2. Unzip it — you'll get `JobHunter` (or `JobHunter.exe`), a `.env.example`,
+   and this README.
+3. Run it:
+   - **Windows**: double-click `JobHunter.exe`. If SmartScreen warns you
+     ("Windows protected your PC"), click **More info -> Run anyway** — this
+     just means the executable isn't code-signed by a paid certificate, not
+     that anything is wrong with it (it's built openly by the
+     [release workflow](.github/workflows/release.yml), never mind).
+   - **macOS**: open a terminal in the unzipped folder and run `./JobHunter`.
+     Double-clicking in Finder may show an "unidentified developer" warning
+     for the same code-signing reason above — if so, right-click the file,
+     choose **Open**, and confirm once; after that it'll launch normally.
+4. The app creates its own `data/` and `runs/` folders right next to the
+   executable the first time you use it, and will prompt you for any
+   missing API keys the same way the source version does (see below).
+
+Prefer to build/run from source instead (e.g. to modify the code)? Keep
+reading.
+
 ## Setup
 
 ```bash
@@ -191,6 +218,29 @@ python main.py
 
 - Console: top 15 ranked matches
 - CSV: `runs/matches_<timestamp>.csv` — every match, ranked by score
+
+## Publishing a new release (maintainers)
+
+Pushing a version tag builds standalone executables for macOS and Windows
+via [`.github/workflows/release.yml`](.github/workflows/release.yml) and
+attaches them to a new GitHub Release automatically:
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+That's it — no manual building required. You can also trigger a one-off
+test build (no release created) from the **Actions** tab using
+"Run workflow" on the same workflow. Builds use
+[PyInstaller](https://pyinstaller.org/) (`pyinstaller --onefile --name
+JobHunter jobhunter.py`); if you want to build one locally instead:
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile --name JobHunter --console jobhunter.py
+# output: dist/JobHunter (or dist/JobHunter.exe on Windows)
+```
 
 ## How the dynamic profile drives search (`job_hunter/config.py`)
 
