@@ -51,6 +51,13 @@ ENV_VARS = [
         "signup_url": "https://jooble.org/api/about",
     },
     {
+        "key": "BRIGHTDATA_API_KEY",
+        "label": "Bright Data API Key",
+        "required": False,
+        "used_for": "LinkedIn job listings via Bright Data's dataset API (optional, paid)",
+        "signup_url": "https://brightdata.com/",
+    },
+    {
         "key": "USAJOBS_API_KEY",
         "label": "USAJobs API Key",
         "required": False,
