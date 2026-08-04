@@ -83,6 +83,7 @@ Run `python jobhunter.py` and you'll get:
   [4] Configure API Keys
   [5] View Active Profile Summary
   [6] Set Target Location (City/State)
+  [7] Edit Skills / Weights / Min Score / Employers
   [0] Exit
 ╠════════════════════════════════════════════════════════════════════╣
   OpenAI:OK  AdzunaID:OK  AdzunaKey:OK
@@ -103,6 +104,10 @@ Run `python jobhunter.py` and you'll get:
 - **[6] Set Target Location (City/State)** — update the metro/target
   location your searches are anchored to (e.g. "Austin, TX") without
   re-parsing your whole resume.
+- **[7] Edit Skills / Weights / Min Score / Employers** — a submenu to
+  directly manage the profile's search criteria without touching a resume:
+  view/add/update/remove individual skill weights, change the minimum
+  skill score gate, and view/add/remove target employers.
 
 **Missing an API key?** Whenever the menu detects one is required for the
 option you picked, it shows you what the key is for and a signup URL, then
