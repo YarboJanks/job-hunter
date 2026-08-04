@@ -58,43 +58,90 @@ cd job-hunter
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
 ```
 
-Get an OpenAI API key (required for resume parsing):
-- https://platform.openai.com/api-keys
-
-Get a free Adzuna key (primary job source):
-- https://developer.adzuna.com/signup — instant `app_id` + `app_key`
-
-Optionally get a free Jooble key (second aggregator):
-- https://jooble.org/api/about
-
-Add all of these to `.env`, then parse your resume and run a search:
+That's it — no need to manually create `.env` or look up API keys by hand.
+Launch the menu and it'll walk you through the rest:
 
 ```bash
-python update_resume.py path/to/resume.pdf   # .docx and .txt also supported
-python main.py
+python jobhunter.py
 ```
+
+## The menu (`jobhunter.py`)
+
+A retro, DOS-style numbered menu is the recommended way to use Job Hunter.
+Run `python jobhunter.py` and you'll get:
+
+```
+╔════════════════════════════════════════════════════════════════════╗
+                             JOB HUNTER
+            Compliant Multi-Source Job Search Aggregator
+╠════════════════════════════════════════════════════════════════════╣
+  [1] Run Job Search
+  [2] Update Resume / Refresh Search Criteria
+  [3] View Last Results
+  [4] Configure API Keys
+  [5] View Active Profile Summary
+  [0] Exit
+╠════════════════════════════════════════════════════════════════════╣
+  OpenAI:OK  AdzunaID:OK  AdzunaKey:OK
+  Jooble:OK  USAJobs:--  USAJobsEmail:--
+╚════════════════════════════════════════════════════════════════════╝
+```
+
+- **[1] Run Job Search** — checks that Adzuna/Jooble keys are present
+  (prompting for any missing ones first), then runs `main.py`.
+- **[2] Update Resume / Refresh Search Criteria** — checks for an OpenAI
+  key, asks for a path to your resume, then runs `update_resume.py`.
+- **[3] View Last Results** — prints the most recent `runs/matches_*.csv`
+  right in the terminal.
+- **[4] Configure API Keys** — lists every key Job Hunter uses, shows
+  SET/missing status, and lets you type a value in to save it.
+- **[5] View Active Profile Summary** — shows the candidate info, top
+  skills, and target employers currently driving your searches.
+
+**Missing an API key?** Whenever the menu detects one is required for the
+option you picked, it shows you what the key is for and a signup URL, then
+offers two ways to provide it:
+1. Type the value right there — it's saved straight into `.env` for you
+   (nothing is ever printed back out or logged).
+2. Skip it, and instead copy `.env.example` (checked into the repo with no
+   real keys) to `.env` and paste values in yourself with a text editor.
+
+Keys you'll likely want:
+- **OpenAI** (required for resume parsing): https://platform.openai.com/api-keys
+- **Adzuna** (required, primary job source): https://developer.adzuna.com/signup
+- **Jooble** (optional, second aggregator): https://jooble.org/api/about
 
 ## Updating your search criteria
 
-Just run `update_resume.py` again with a new/updated resume — the old
-profile in `data/profile.json` is completely overwritten:
+Use menu option `[2]`, or run `update_resume.py` directly with a new/updated
+resume — the old profile in `data/profile.json` is completely overwritten:
 
 ```bash
-python update_resume.py path/to/new_resume.pdf
+python update_resume.py path/to/new_resume.pdf   # .docx and .txt also supported
 ```
 
 The command prints a summary of what changed (top skills, target
 employers, target location, minimum score) so you can sanity-check the
-extraction before your next `python main.py` run.
+extraction before your next search.
 
 `data/profile.json` is gitignored — it's derived from your personal resume
 and never gets committed. If you ever want to hand-tune something after
 generation (add one more excluded keyword, tweak a weight, etc.), it's a
 plain JSON file you can edit directly; it'll be overwritten on your next
 `update_resume.py` run.
+
+## Running things directly (without the menu)
+
+The menu is just a friendly wrapper — every option maps to a plain script
+you can still run or script yourself:
+
+```bash
+cp .env.example .env                         # then fill in your keys by hand
+python update_resume.py path/to/resume.pdf
+python main.py
+```
 
 ## Output
 
