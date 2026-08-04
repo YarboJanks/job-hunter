@@ -111,6 +111,7 @@ _FOOTER_LABELS = {
     "ADZUNA_APP_ID": "AdzunaID",
     "ADZUNA_APP_KEY": "AdzunaKey",
     "JOOBLE_API_KEY": "Jooble",
+    "BRIGHTDATA_API_KEY": "BrightData",
     "USAJOBS_API_KEY": "USAJobs",
     "USAJOBS_EMAIL": "USAJobsEmail",
 }
@@ -121,8 +122,8 @@ def _key_status_footer():
         f"{_FOOTER_LABELS.get(row['key'], row['key'])}:{'OK' if row['is_set'] else '--'}"
         for row in env_setup.status()
     ]
-    line1 = "  " + "  ".join(parts[:3])
-    line2 = "  " + "  ".join(parts[3:])
+    line1 = "  " + "  ".join(parts[:4])
+    line2 = "  " + "  ".join(parts[4:])
     _line(line1, FG_ACCENT)
     _line(line2, FG_ACCENT)
     _border("\u255a", "\u2550", "\u255d")
