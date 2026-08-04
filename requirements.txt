@@ -3,3 +3,4 @@ requests
 openai
 pypdf
 python-docx
+reportlab
