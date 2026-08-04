@@ -26,12 +26,12 @@ from job_hunter.resume_intake import extract_text, parse_resume_to_profile, save
 load_dotenv()
 
 
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: python update_resume.py <path-to-resume.pdf|.docx|.txt>")
-        sys.exit(1)
-
-    path = sys.argv[1]
+def main(path=None):
+    if path is None:
+        if len(sys.argv) != 2:
+            print("Usage: python update_resume.py <path-to-resume.pdf|.docx|.txt>")
+            sys.exit(1)
+        path = sys.argv[1]
 
     print(f"Reading resume: {path}")
     text = extract_text(path)
