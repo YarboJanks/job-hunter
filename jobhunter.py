@@ -99,6 +99,7 @@ def _menu_options():
     _line("  [5] View Active Profile Summary", FG)
     _line("  [6] Set Target Location (City/State)", FG)
     _line("  [7] Edit Skills / Weights / Min Score / Employers", FG)
+    _line("  [8] Tailor Resume to a Job Listing", FG)
     _line("  [0] Exit", FG_ACCENT)
     _border("\u2560", "\u2550", "\u2563")
 
@@ -154,6 +155,28 @@ def update_resume():
         _pause()
         return
     subprocess.run([sys.executable, "update_resume.py", path])
+    _pause()
+
+
+def tailor_resume_for_listing():
+    _clear()
+    print("Tailor Resume to a Job Listing\n")
+    env_setup.interactive_check(vars_needed=["OPENAI_API_KEY"])
+    path = input("\nPath to your resume (.pdf, .docx, or .txt): ").strip()
+    if not path:
+        print("No path entered - cancelled.")
+        _pause()
+        return
+    if not os.path.exists(path):
+        print(f"File not found: {path}")
+        _pause()
+        return
+    print(
+        "\nYou'll be prompted to paste the full text of the job listing next "
+        "(copy it from Adzuna, Jooble, LinkedIn, Indeed, a company careers "
+        "page, anywhere).\n"
+    )
+    subprocess.run([sys.executable, "tailor_resume.py", path])
     _pause()
 
 
@@ -472,6 +495,7 @@ MENU_ACTIONS = {
     "5": view_profile_summary,
     "6": set_target_location,
     "7": edit_search_criteria,
+    "8": tailor_resume_for_listing,
 }
 
 
