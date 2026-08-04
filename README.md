@@ -44,11 +44,18 @@ required.
 | RemoteOK | General remote sysadmin/IT jobs | None |
 | Workday (direct) | Per-company direct career-site feeds, for companies confirmed to run on Workday | None (needs the company's real tenant/instance/site slugs, see below) |
 | USAJobs | Federal/cleared roles (off by default) | Free API key |
+| LinkedIn (via Bright Data) | LinkedIn job listings, through Bright Data's official Dataset API (not scraping) | **Paid** Bright Data API key (off by default; skipped automatically if unset) |
+| Indeed (via Bright Data) | Indeed job listings, through Bright Data's official Dataset API (not scraping) | **Paid** Bright Data API key (same key as LinkedIn above; off by default; skipped automatically if unset) |
 
-> **Why not LinkedIn/Indeed/ClearanceJobs?** Their `robots.txt` and Terms of
-> Service explicitly disallow automated scraping of job listings, and none
-> offer a self-serve public API for this use case. Set up their official
-> job-alert emails instead as a manual supplement — see below.
+> **Why not LinkedIn/Indeed/ClearanceJobs directly?** Their `robots.txt` and
+> Terms of Service explicitly disallow automated scraping of job listings,
+> and neither offers a free self-serve public API for this use case.
+> LinkedIn and Indeed coverage are available above through **Bright Data**,
+> a third-party data provider with an official, ToS-compliant Dataset API —
+> this is a paid, usage-billed service (Bright Data charges per record),
+> unlike every other source in this table, so both are off by default and
+> share one `BRIGHTDATA_API_KEY`. Set up ClearanceJobs's own job-alert
+> emails as a manual supplement — see below.
 
 ## Download a pre-built app (no Python required)
 
@@ -157,6 +164,7 @@ Keys you'll likely want:
 - **OpenAI** (required for resume parsing): https://platform.openai.com/api-keys
 - **Adzuna** (required, primary job source): https://developer.adzuna.com/signup
 - **Jooble** (optional, second aggregator): https://jooble.org/api/about
+- **Bright Data** (optional, **paid**, LinkedIn + Indeed listings): https://brightdata.com/
 
 ## Updating your search criteria
 
@@ -293,6 +301,7 @@ the company name alone — this only works for companies you've confirmed.
 
 ## Manual supplement (recommended)
 
-Since LinkedIn, Indeed, and ClearanceJobs can't be scraped, set up **saved
-search job alerts** on those sites directly for your target roles and
-companies — many post there before (or in addition to) general job boards.
+Since ClearanceJobs can't be scraped or accessed via a paid dataset here, set
+up **saved search job alerts** on it directly (and any other niche boards)
+for your target roles and companies — many post there before (or in
+addition to) general job boards.
