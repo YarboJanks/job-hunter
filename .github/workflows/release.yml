@@ -1,0 +1,91 @@
+name: Build & Release Executables
+
+# Builds a standalone Job Hunter executable for macOS and Windows and
+# attaches them to a GitHub Release.
+#
+# Trigger by pushing a tag, e.g.:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+#
+# Or run manually from the Actions tab (workflow_dispatch) for a test
+# build without creating a release.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            asset_name: JobHunter-macos
+            exe_name: JobHunter
+          - os: windows-latest
+            asset_name: JobHunter-windows
+            exe_name: JobHunter.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build executable
+        run: pyinstaller --onefile --name JobHunter --console jobhunter.py
+
+      - name: Assemble release folder
+        shell: bash
+        run: |
+          mkdir -p "release/${{ matrix.asset_name }}"
+          cp "dist/${{ matrix.exe_name }}" "release/${{ matrix.asset_name }}/"
+          cp .env.example "release/${{ matrix.asset_name }}/"
+          cp README.md "release/${{ matrix.asset_name }}/"
+
+      - name: Zip package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd release
+          zip -r "../${{ matrix.asset_name }}.zip" "${{ matrix.asset_name }}"
+
+      - name: Zip package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "release/${{ matrix.asset_name }}/*" -DestinationPath "${{ matrix.asset_name }}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}.zip
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.zip
+          generate_release_notes: true
