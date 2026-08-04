@@ -7,3 +7,6 @@ runs/*
 data/*
 !data/.gitkeep
 .DS_Store
+build/
+dist/
+*.spec
