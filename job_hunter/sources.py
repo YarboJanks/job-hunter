@@ -18,6 +18,7 @@ each provider's documented fair-use terms (attribution + reasonable request
 rates). No authenticated scraping or ToS-violating access is performed.
 """
 
+import json
 import os
 import time
 
@@ -383,6 +384,145 @@ def fetch_jooble(keywords, api_key: str, location: str = "Dallas, TX",
     return jobs
 
 
+def _parse_brightdata_records(resp):
+    """
+    Bright Data's scrape/snapshot responses come back as either a JSON
+    array, a single JSON object, or newline-delimited JSON (one job record
+    per line) depending on result size - handle all three.
+    """
+    try:
+        data = resp.json()
+        return data if isinstance(data, list) else [data]
+    except ValueError:
+        records = []
+        for line in resp.text.splitlines():
+            line = line.strip()
+            if line:
+                records.append(json.loads(line))
+        return records
+
+
+def _poll_brightdata_snapshot(snapshot_id: str, headers: dict, max_wait_seconds: int,
+                               poll_interval_seconds: int):
+    """
+    Poll a Bright Data dataset snapshot until it's ready, then download it.
+    Bright Data's Dataset API is asynchronous when a request can't be
+    fulfilled immediately: the trigger call returns a snapshot_id (HTTP
+    202), and the snapshot endpoint keeps returning 202 ("not ready yet")
+    until the scrape finishes, at which point it returns 200 with the job
+    records.
+    """
+    snapshot_url = f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot_id}?format=json"
+
+    elapsed = 0
+    while elapsed < max_wait_seconds:
+        resp = requests.get(snapshot_url, headers=headers, timeout=60)
+        if resp.status_code == 200:
+            return _parse_brightdata_records(resp)
+        if resp.status_code == 202:
+            wait = int(resp.headers.get("retry-after", poll_interval_seconds))
+            time.sleep(wait)
+            elapsed += wait
+            continue
+        resp.raise_for_status()
+
+    print(
+        f"  [LinkedIn-BrightData] Timed out waiting for snapshot {snapshot_id} "
+        "(it may still be running - check your Bright Data dashboard)."
+    )
+    return []
+
+
+def fetch_brightdata_linkedin(keywords, location: str, api_key: str,
+                               dataset_id: str = "gd_lpfll7v5hcqtkxl6l",
+                               time_range: str = "Past month", job_type: str = "",
+                               remote: str = "", max_results: int = 50,
+                               max_wait_seconds: int = 240, poll_interval_seconds: int = 15):
+    """
+    LinkedIn job listings via Bright Data's Dataset API
+    (https://brightdata.com/products/datasets/linkedin/jobs).
+
+    Unlike every other source in this file, this is a PAID, usage-billed
+    dataset (Bright Data charges per record returned) - it is not a free
+    public API. Requires a Bright Data account + API key (BRIGHTDATA_API_KEY
+    in .env). Skipped automatically if that key isn't set.
+
+    keywords: a single search phrase, or a list of phrases - each is sent as
+    a separate "input" entry to Bright Data (each one is billed/counted
+    separately, so keep this list short by default).
+    """
+    if not api_key:
+        return []
+
+    if isinstance(keywords, str):
+        keywords = [keywords]
+
+    auth_value = "Bearer " + api_key
+    headers = {
+        "Authorization": auth_value,
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "input": [
+            {
+                "location": location,
+                "keyword": keyword,
+                "country": "",
+                "time_range": time_range,
+                "job_type": job_type,
+                "experience_level": "",
+                "remote": remote,
+                "company": "",
+                "location_radius": "",
+            }
+            for keyword in keywords
+        ],
+        "limit_per_input": max_results,
+    }
+
+    trigger_url = (
+        "https://api.brightdata.com/datasets/v3/scrape"
+        f"?dataset_id={dataset_id}&notify=false&include_errors=true"
+        "&type=discover_new&discover_by=keyword"
+    )
+    resp = requests.post(trigger_url, headers=headers, json=payload, timeout=60)
+
+    if resp.status_code == 200:
+        # Small requests can be fulfilled synchronously in the trigger response.
+        records = _parse_brightdata_records(resp)
+    elif resp.status_code == 202:
+        # Larger requests return a snapshot_id to poll for and download once ready.
+        trigger_data = resp.json()
+        snapshot_id = trigger_data.get("snapshot_id")
+        if not snapshot_id:
+            print(f"  [LinkedIn-BrightData] Unexpected response, no snapshot_id: {trigger_data}")
+            return []
+        records = _poll_brightdata_snapshot(
+            snapshot_id, headers, max_wait_seconds, poll_interval_seconds
+        )
+    else:
+        resp.raise_for_status()
+        records = []
+
+    jobs = []
+    for record in records or []:
+        if not isinstance(record, dict):
+            continue
+        jobs.append(
+            {
+                "source": "LinkedIn (Bright Data)",
+                "title": record.get("job_title") or record.get("title") or "",
+                "company": record.get("company_name") or record.get("company") or "",
+                "location": record.get("job_location") or record.get("location") or "",
+                "description": record.get("job_summary") or record.get("description") or "",
+                "url": record.get("url") or record.get("apply_link") or record.get("job_url") or "",
+                "posted": record.get("job_posted_time") or record.get("date_posted") or "",
+            }
+        )
+    return jobs
+
+
 def fetch_all(config: dict):
     """Fetch from all configured sources, being polite between calls."""
     all_jobs = []
@@ -476,6 +616,24 @@ def fetch_all(config: dict):
             time.sleep(1)
     else:
         print("Skipping Jooble (no JOOBLE_API_KEY set - get a free key at https://jooble.org/api/about).")
+
+    brightdata_key = os.getenv("BRIGHTDATA_API_KEY", "")
+    if brightdata_key:
+        print("Fetching LinkedIn (Bright Data - paid dataset)...")
+        try:
+            hits = fetch_brightdata_linkedin(
+                keywords=config.get("brightdata_keywords", config["remotive_search"]),
+                location=config.get("brightdata_location", "Dallas, TX"),
+                api_key=brightdata_key,
+            )
+            if hits:
+                print(f"  [LinkedIn-BrightData] {len(hits)} posting(s) found")
+            all_jobs += hits
+        except Exception as e:
+            print(f"  [LinkedIn-BrightData] Error: {e}")
+        time.sleep(1)
+    else:
+        print("Skipping LinkedIn/Bright Data (no BRIGHTDATA_API_KEY set - optional, paid - see README).")
 
     workday_companies = config.get("workday_companies", [])
     if workday_companies:
