@@ -28,6 +28,7 @@ import os
 from dotenv import load_dotenv
 
 from job_hunter.config import SEARCH_CONFIG
+from job_hunter.paths import runs_dir
 from job_hunter.profile import score_job
 from job_hunter.sources import fetch_all
 
@@ -68,8 +69,7 @@ def main():
     print(f"{len(scored)} jobs matched your profile (score > 0).\n")
 
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_dir = "runs"
-    os.makedirs(out_dir, exist_ok=True)
+    out_dir = runs_dir()
     out_path = os.path.join(out_dir, f"matches_{ts}.csv")
 
     with open(out_path, "w", newline="") as f:
