@@ -25,12 +25,13 @@ import sys
 
 from dotenv import load_dotenv
 
+from job_hunter.paths import runs_dir
 from job_hunter.resume_intake import extract_text
 from job_hunter.resume_tailor import tailor_resume, render_docx, render_pdf
 
 load_dotenv()
 
-OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "runs", "tailored_resumes")
+OUT_DIR = os.path.join(runs_dir(), "tailored_resumes")
 
 
 def _read_job_listing_from_stdin() -> str:
@@ -56,12 +57,12 @@ def _slugify(text: str) -> str:
     return text.strip("-") or "resume"
 
 
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: python tailor_resume.py <path-to-resume.pdf|.docx|.txt>")
-        sys.exit(1)
-
-    path = sys.argv[1]
+def main(path=None):
+    if path is None:
+        if len(sys.argv) != 2:
+            print("Usage: python tailor_resume.py <path-to-resume.pdf|.docx|.txt>")
+            sys.exit(1)
+        path = sys.argv[1]
 
     print(f"Reading resume: {path}")
     resume_text = extract_text(path)
