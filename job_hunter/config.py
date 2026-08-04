@@ -88,6 +88,14 @@ SEARCH_CONFIG = {
     # README.md for the "Adding a Workday direct-company feed" guide.
     "workday_companies": [],
 
+    # LinkedIn via Bright Data's Dataset API - off unless BRIGHTDATA_API_KEY
+    # is set in .env. This is a PAID, usage-billed source (unlike everything
+    # else above), so only the top 2 search terms are sent by default to
+    # keep costs down - add more to the list below if you don't mind the
+    # extra spend. Get a key at https://brightdata.com.
+    "brightdata_keywords": _search_terms[:2],
+    "brightdata_location": _target_location,
+
     # USAJobs (government/federal) - off by default. Set to True + add
     # USAJOBS_API_KEY/EMAIL to .env to include federal/cleared postings.
     "include_usajobs": False,
