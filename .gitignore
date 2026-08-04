@@ -4,4 +4,6 @@ __pycache__/
 *.pyc
 runs/*
 !runs/.gitkeep
+data/*
+!data/.gitkeep
 .DS_Store
