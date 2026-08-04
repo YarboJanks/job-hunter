@@ -28,10 +28,23 @@ load_dotenv()
 
 WIDTH = 68
 
-BG = "\033[44m"       # blue background - classic DOS/QBasic look
-FG = "\033[97m"       # bright white
-FG_HI = "\033[93m"    # bright yellow - headers/borders/prompts
-FG_WARN = "\033[91m"  # bright red - warnings
+
+def _rgb_fg(r, g, b):
+    return f"\033[38;2;{r};{g};{b}m"
+
+
+def _rgb_bg(r, g, b):
+    return f"\033[48;2;{r};{g};{b}m"
+
+
+# "Outrun" synthwave palette - deep space-purple night sky with neon accents.
+BG = _rgb_bg(13, 2, 33)         # #0D0221 - near-black midnight purple
+FG = _rgb_fg(255, 255, 255)    # #FFFFFF - white body text
+FG_HI = _rgb_fg(45, 226, 230)  # #2DE2E6 - neon cyan (borders/headers/prompts)
+FG_TITLE = _rgb_fg(246, 1, 157)   # #F6019D - hot magenta (title)
+FG_ACCENT = _rgb_fg(249, 200, 14)  # #F9C80E - neon yellow (menu numbers/OK status)
+FG_WARN = _rgb_fg(255, 108, 17)   # #FF6C11 - neon orange (warnings)
+FG_MISSING = _rgb_fg(253, 29, 83)  # #FD1D53 - hot pink/red (missing status)
 RESET = "\033[0m"
 
 
@@ -64,8 +77,8 @@ def _header():
     profile = load_profile()
     _clear()
     _border("\u2554", "\u2550", "\u2557")
-    _line("JOB HUNTER", FG_HI, "center")
-    _line("Compliant Multi-Source Job Search Aggregator", FG, "center")
+    _line("JOB HUNTER", FG_TITLE, "center")
+    _line("Compliant Multi-Source Job Search Aggregator", FG_HI, "center")
     _border("\u2560", "\u2550", "\u2563")
     if profile:
         candidate = profile.get("candidate", {})
@@ -85,7 +98,7 @@ def _menu_options():
     _line("  [4] Configure API Keys", FG)
     _line("  [5] View Active Profile Summary", FG)
     _line("  [6] Set Target Location (City/State)", FG)
-    _line("  [0] Exit", FG)
+    _line("  [0] Exit", FG_ACCENT)
     _border("\u2560", "\u2550", "\u2563")
 
 
@@ -106,8 +119,8 @@ def _key_status_footer():
     ]
     line1 = "  " + "  ".join(parts[:3])
     line2 = "  " + "  ".join(parts[3:])
-    _line(line1, FG)
-    _line(line2, FG)
+    _line(line1, FG_ACCENT)
+    _line(line2, FG_ACCENT)
     _border("\u255a", "\u2550", "\u255d")
 
 
@@ -170,7 +183,7 @@ def configure_api_keys():
     print("Configure API Keys\n")
     rows = env_setup.status()
     for i, row in enumerate(rows, 1):
-        tag = "SET" if row["is_set"] else "missing"
+        tag = f"{FG_ACCENT}SET{RESET}" if row["is_set"] else f"{FG_MISSING}missing{RESET}"
         print(f"  {i}. {row['label']} ({row['key']}) - {tag}")
     print("\n  0. Back to menu")
 
