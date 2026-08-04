@@ -16,12 +16,14 @@ Usage:
 import csv
 import glob
 import os
-import subprocess
-import sys
 
 from dotenv import load_dotenv
 
+import main as job_search
+import tailor_resume as tailor_resume_script
+import update_resume as update_resume_script
 from job_hunter import env_setup
+from job_hunter.paths import runs_dir
 from job_hunter.resume_intake import load_profile, save_profile
 
 load_dotenv()
@@ -132,12 +134,24 @@ def render_menu():
     _key_status_footer()
 
 
+def _run_isolated(func, *args):
+    """Run a delegated script's main() in-process, without letting its
+    sys.exit() calls (used for its own standalone CLI error handling)
+    kill the whole menu app."""
+    try:
+        func(*args)
+    except SystemExit:
+        pass
+    except Exception as e:
+        print(f"\nUnexpected error: {e}")
+
+
 def run_job_search():
     _clear()
     print("Run Job Search\n")
     env_setup.interactive_check(vars_needed=["ADZUNA_APP_ID", "ADZUNA_APP_KEY", "JOOBLE_API_KEY"])
     print("\nRunning search (this may take a minute)...\n")
-    subprocess.run([sys.executable, "main.py"])
+    _run_isolated(job_search.main)
     _pause()
 
 
@@ -154,7 +168,7 @@ def update_resume():
         print(f"File not found: {path}")
         _pause()
         return
-    subprocess.run([sys.executable, "update_resume.py", path])
+    _run_isolated(update_resume_script.main, path)
     _pause()
 
 
@@ -176,13 +190,13 @@ def tailor_resume_for_listing():
         "(copy it from Adzuna, Jooble, LinkedIn, Indeed, a company careers "
         "page, anywhere).\n"
     )
-    subprocess.run([sys.executable, "tailor_resume.py", path])
+    _run_isolated(tailor_resume_script.main, path)
     _pause()
 
 
 def view_last_results():
     _clear()
-    files = sorted(glob.glob(os.path.join("runs", "matches_*.csv")))
+    files = sorted(glob.glob(os.path.join(runs_dir(), "matches_*.csv")))
     if not files:
         print("No results yet - run a job search first (option 1).")
         _pause()
