@@ -22,7 +22,7 @@ import sys
 from dotenv import load_dotenv
 
 from job_hunter import env_setup
-from job_hunter.resume_intake import load_profile
+from job_hunter.resume_intake import load_profile, save_profile
 
 load_dotenv()
 
@@ -84,6 +84,7 @@ def _menu_options():
     _line("  [3] View Last Results", FG)
     _line("  [4] Configure API Keys", FG)
     _line("  [5] View Active Profile Summary", FG)
+    _line("  [6] Set Target Location (City/State)", FG)
     _line("  [0] Exit", FG)
     _border("\u2560", "\u2550", "\u2563")
 
@@ -217,12 +218,39 @@ def view_profile_summary():
     _pause()
 
 
+def set_target_location():
+    _clear()
+    print("Set Target Location (City/State)\n")
+    profile = load_profile()
+    if not profile:
+        print("No resume has been parsed yet - using a generic sample profile.")
+        print("Choose option [2] first to create a real profile, then set your target here.")
+        _pause()
+        return
+
+    candidate = profile.setdefault("candidate", {})
+    current = candidate.get("target_location", "(not set)")
+    print(f"Current target location: {current}\n")
+    new_value = input("Enter new target location (e.g. 'Dallas-Fort Worth, TX'), or press Enter to cancel: ").strip()
+    if not new_value:
+        print("Cancelled - no changes made.")
+        _pause()
+        return
+
+    candidate["target_location"] = new_value
+    save_profile(profile)
+    print(f"\nTarget location updated to: {new_value}")
+    print("This will be used the next time you run a job search.")
+    _pause()
+
+
 MENU_ACTIONS = {
     "1": run_job_search,
     "2": update_resume,
     "3": view_last_results,
     "4": configure_api_keys,
     "5": view_profile_summary,
+    "6": set_target_location,
 }
 
 
