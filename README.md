@@ -84,6 +84,7 @@ Run `python jobhunter.py` and you'll get:
   [5] View Active Profile Summary
   [6] Set Target Location (City/State)
   [7] Edit Skills / Weights / Min Score / Employers
+  [8] Tailor Resume to a Job Listing
   [0] Exit
 ╠════════════════════════════════════════════════════════════════════╣
   OpenAI:OK  AdzunaID:OK  AdzunaKey:OK
@@ -112,6 +113,10 @@ Here's the actual Outrun-themed color palette in action:
   directly manage the profile's search criteria without touching a resume:
   view/add/update/remove individual skill weights, change the minimum
   skill score gate, and view/add/remove target employers.
+- **[8] Tailor Resume to a Job Listing** — paste in the text of a specific
+  job posting and get back a version of your resume rewritten (summary,
+  skill order, experience bullets) to better match that role, without
+  fabricating experience you don't have. Outputs both `.docx` and `.pdf`.
 
 **Missing an API key?** Whenever the menu detects one is required for the
 option you picked, it shows you what the key is for and a signup URL, then
@@ -144,6 +149,32 @@ and never gets committed. If you ever want to hand-tune something after
 generation (add one more excluded keyword, tweak a weight, etc.), it's a
 plain JSON file you can edit directly; it'll be overwritten on your next
 `update_resume.py` run.
+
+## Tailoring your resume to a specific job listing
+
+Found a job you want to apply to and want your resume to speak more
+directly to it? Use menu option `[8]`, or run `tailor_resume.py` directly:
+
+```bash
+python tailor_resume.py path/to/resume.pdf   # .docx and .txt also supported
+```
+
+You'll be prompted to paste the full text of the job listing (copy it from
+Adzuna, Jooble, LinkedIn, Indeed, a company careers page — anywhere).
+When you're done pasting, enter a blank line, then type `END` and press
+Enter.
+
+An OpenAI model then rewrites your resume's summary, reorders your skills
+to foreground what the listing asks for, and rephrases experience bullets
+to use the listing's language — **without inventing skills or experience
+you don't have**. If the listing asks for something your resume doesn't
+support, it's called out in a "candidate notes" list you can use to
+prep talking points or a cover letter, instead of being silently
+fabricated into the resume.
+
+Output is saved to `runs/tailored_resumes/<company>_<role>_<timestamp>.docx`
+and `.pdf` (both formats, every time). That folder is gitignored, same as
+the rest of `runs/`, since it contains your personal resume content.
 
 ## Running things directly (without the menu)
 
