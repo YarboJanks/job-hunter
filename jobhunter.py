@@ -98,6 +98,7 @@ def _menu_options():
     _line("  [4] Configure API Keys", FG)
     _line("  [5] View Active Profile Summary", FG)
     _line("  [6] Set Target Location (City/State)", FG)
+    _line("  [7] Edit Skills / Weights / Min Score / Employers", FG)
     _line("  [0] Exit", FG_ACCENT)
     _border("\u2560", "\u2550", "\u2563")
 
@@ -257,6 +258,212 @@ def set_target_location():
     _pause()
 
 
+def _require_profile():
+    profile = load_profile()
+    if not profile:
+        print("No resume has been parsed yet - using a generic sample profile.")
+        print("Choose option [2] first to create a real profile before editing search criteria.")
+        _pause()
+        return None
+    return profile
+
+
+def _view_skills(profile):
+    _clear()
+    skills = profile.get("skill_weights", {})
+    print(f"Skill weights ({len(skills)} total):\n")
+    for keyword, weight in sorted(skills.items(), key=lambda kv: kv[1], reverse=True):
+        print(f"  {weight:>2}  {keyword}")
+    _pause()
+
+
+def _add_or_update_skill(profile):
+    _clear()
+    print("Add or Update a Skill Weight\n")
+    keyword = input("Skill/keyword (e.g. 'Microsoft 365'): ").strip().lower()
+    if not keyword:
+        print("Cancelled - no changes made.")
+        _pause()
+        return
+
+    skills = profile.setdefault("skill_weights", {})
+    existing = skills.get(keyword)
+    if existing is not None:
+        print(f"Current weight for '{keyword}': {existing}")
+    weight_str = input("New weight (1-10, higher = more important): ").strip()
+    try:
+        weight = int(weight_str)
+    except ValueError:
+        print("Invalid weight - must be a whole number. No changes made.")
+        _pause()
+        return
+
+    skills[keyword] = weight
+    save_profile(profile)
+    print(f"\nSaved: '{keyword}' = {weight}")
+    _pause()
+
+
+def _remove_skill(profile):
+    _clear()
+    skills = profile.get("skill_weights", {})
+    if not skills:
+        print("No skills to remove.")
+        _pause()
+        return
+
+    items = sorted(skills.items(), key=lambda kv: kv[1], reverse=True)
+    print("Remove a Skill\n")
+    for i, (keyword, weight) in enumerate(items, 1):
+        print(f"  {i}. {keyword} ({weight})")
+    print("\n  0. Cancel")
+
+    choice = input("\nSelect a skill to remove (number): ").strip()
+    if choice in ("", "0"):
+        return
+
+    try:
+        keyword, _ = items[int(choice) - 1]
+    except (ValueError, IndexError):
+        print("Invalid choice.")
+        _pause()
+        return
+
+    del skills[keyword]
+    save_profile(profile)
+    print(f"\nRemoved: '{keyword}'")
+    _pause()
+
+
+def _set_min_skill_score(profile):
+    _clear()
+    print("Set Minimum Skill Score\n")
+    print(f"Current minimum skill score: {profile.get('min_skill_score')}")
+    print("(Postings must clear this score on skill relevance alone to qualify.)\n")
+    value_str = input("New minimum skill score (whole number), or press Enter to cancel: ").strip()
+    if not value_str:
+        print("Cancelled - no changes made.")
+        _pause()
+        return
+
+    try:
+        value = int(value_str)
+    except ValueError:
+        print("Invalid value - must be a whole number. No changes made.")
+        _pause()
+        return
+
+    profile["min_skill_score"] = value
+    save_profile(profile)
+    print(f"\nMinimum skill score updated to: {value}")
+    _pause()
+
+
+def _view_employers(profile):
+    _clear()
+    employers = profile.get("target_employers", [])
+    print(f"Target employers ({len(employers)} total):\n")
+    for i, employer in enumerate(sorted(employers), 1):
+        print(f"  {i}. {employer}")
+    _pause()
+
+
+def _add_employer(profile):
+    _clear()
+    print("Add a Target Employer\n")
+    name = input("Employer name (e.g. 'Palo Alto Networks'): ").strip().lower()
+    if not name:
+        print("Cancelled - no changes made.")
+        _pause()
+        return
+
+    employers = profile.setdefault("target_employers", [])
+    if name in [e.lower() for e in employers]:
+        print(f"'{name}' is already in your target employers list.")
+        _pause()
+        return
+
+    employers.append(name)
+    save_profile(profile)
+    print(f"\nAdded: '{name}'")
+    _pause()
+
+
+def _remove_employer(profile):
+    _clear()
+    employers = profile.get("target_employers", [])
+    if not employers:
+        print("No target employers to remove.")
+        _pause()
+        return
+
+    items = sorted(employers)
+    print("Remove a Target Employer\n")
+    for i, employer in enumerate(items, 1):
+        print(f"  {i}. {employer}")
+    print("\n  0. Cancel")
+
+    choice = input("\nSelect an employer to remove (number): ").strip()
+    if choice in ("", "0"):
+        return
+
+    try:
+        employer = items[int(choice) - 1]
+    except (ValueError, IndexError):
+        print("Invalid choice.")
+        _pause()
+        return
+
+    employers.remove(employer)
+    save_profile(profile)
+    print(f"\nRemoved: '{employer}'")
+    _pause()
+
+
+def edit_search_criteria():
+    while True:
+        _clear()
+        print("Edit Skills / Weights / Min Score / Employers\n")
+        profile = _require_profile()
+        if profile is None:
+            return
+
+        skills = profile.get("skill_weights", {})
+        employers = profile.get("target_employers", [])
+        print(f"Minimum skill score: {profile.get('min_skill_score')}")
+        print(f"Skills tracked:      {len(skills)}")
+        print(f"Target employers:    {len(employers)}\n")
+        print("  1. View all skills & weights")
+        print("  2. Add or update a skill weight")
+        print("  3. Remove a skill")
+        print("  4. Set minimum skill score")
+        print("  5. View target employers")
+        print("  6. Add a target employer")
+        print("  7. Remove a target employer")
+        print("  0. Back to main menu")
+
+        choice = input("\nSelect an option: ").strip()
+        if choice in ("", "0"):
+            return
+        elif choice == "1":
+            _view_skills(profile)
+        elif choice == "2":
+            _add_or_update_skill(profile)
+        elif choice == "3":
+            _remove_skill(profile)
+        elif choice == "4":
+            _set_min_skill_score(profile)
+        elif choice == "5":
+            _view_employers(profile)
+        elif choice == "6":
+            _add_employer(profile)
+        elif choice == "7":
+            _remove_employer(profile)
+        else:
+            print("Invalid choice.")
+            _pause()
+
+
 MENU_ACTIONS = {
     "1": run_job_search,
     "2": update_resume,
@@ -264,6 +471,7 @@ MENU_ACTIONS = {
     "4": configure_api_keys,
     "5": view_profile_summary,
     "6": set_target_location,
+    "7": edit_search_criteria,
 }
 
 
