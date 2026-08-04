@@ -82,6 +82,7 @@ Run `python jobhunter.py` and you'll get:
   [3] View Last Results
   [4] Configure API Keys
   [5] View Active Profile Summary
+  [6] Set Target Location (City/State)
   [0] Exit
 ╠════════════════════════════════════════════════════════════════════╣
   OpenAI:OK  AdzunaID:OK  AdzunaKey:OK
@@ -99,6 +100,9 @@ Run `python jobhunter.py` and you'll get:
   SET/missing status, and lets you type a value in to save it.
 - **[5] View Active Profile Summary** — shows the candidate info, top
   skills, and target employers currently driving your searches.
+- **[6] Set Target Location (City/State)** — update the metro/target
+  location your searches are anchored to (e.g. "Austin, TX") without
+  re-parsing your whole resume.
 
 **Missing an API key?** Whenever the menu detects one is required for the
 option you picked, it shows you what the key is for and a signup URL, then
