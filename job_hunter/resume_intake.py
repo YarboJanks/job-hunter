@@ -19,9 +19,9 @@ import os
 
 from openai import OpenAI
 
-DATA_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"
-)
+from job_hunter.paths import data_dir
+
+DATA_DIR = data_dir()
 PROFILE_PATH = os.path.join(DATA_DIR, "profile.json")
 
 # Fields the AI response must include for the profile to be usable.
