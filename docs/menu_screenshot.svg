@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="807" height="552" viewBox="0 0 807 552" font-family="Menlo, Monaco, Consolas, monospace" font-size="18">
+  <rect width="807" height="552" fill="#0D0221"/>
+  <text x="24" y="42" xml:space="preserve"><tspan fill="#2DE2E6">╔════════════════════════════════════════════════════════════════════╗</tspan></text>
+  <text x="24" y="66" xml:space="preserve"><tspan fill="#F6019D">                             JOB HUNTER                             </tspan></text>
+  <text x="24" y="90" xml:space="preserve"><tspan fill="#2DE2E6">            Compliant Multi-Source Job Search Aggregator            </tspan></text>
+  <text x="24" y="114" xml:space="preserve"><tspan fill="#2DE2E6">╠════════════════════════════════════════════════════════════════════╣</tspan></text>
+  <text x="24" y="138" xml:space="preserve"><tspan fill="#FFFFFF">Candidate: Jane A. Doe                                            </tspan></text>
+  <text x="24" y="162" xml:space="preserve"><tspan fill="#FFFFFF">Target:    Dallas-Fort Worth, TX                                    </tspan></text>
+  <text x="24" y="186" xml:space="preserve"><tspan fill="#FFFFFF">Updated:   2026-08-04T22:30:21.831922Z                              </tspan></text>
+  <text x="24" y="210" xml:space="preserve"><tspan fill="#2DE2E6">╠════════════════════════════════════════════════════════════════════╣</tspan></text>
+  <text x="24" y="234" xml:space="preserve"><tspan fill="#FFFFFF">  [1] Run Job Search                                                </tspan></text>
+  <text x="24" y="258" xml:space="preserve"><tspan fill="#FFFFFF">  [2] Update Resume / Refresh Search Criteria                       </tspan></text>
+  <text x="24" y="282" xml:space="preserve"><tspan fill="#FFFFFF">  [3] View Last Results                                             </tspan></text>
+  <text x="24" y="306" xml:space="preserve"><tspan fill="#FFFFFF">  [4] Configure API Keys                                            </tspan></text>
+  <text x="24" y="330" xml:space="preserve"><tspan fill="#FFFFFF">  [5] View Active Profile Summary                                   </tspan></text>
+  <text x="24" y="354" xml:space="preserve"><tspan fill="#FFFFFF">  [6] Set Target Location (City/State)                              </tspan></text>
+  <text x="24" y="378" xml:space="preserve"><tspan fill="#FFFFFF">  [7] Edit Skills / Weights / Min Score / Employers                 </tspan></text>
+  <text x="24" y="402" xml:space="preserve"><tspan fill="#F9C80E">  [0] Exit                                                          </tspan></text>
+  <text x="24" y="426" xml:space="preserve"><tspan fill="#2DE2E6">╠════════════════════════════════════════════════════════════════════╣</tspan></text>
+  <text x="24" y="450" xml:space="preserve"><tspan fill="#F9C80E">  OpenAI:OK  AdzunaID:OK  AdzunaKey:OK                              </tspan></text>
+  <text x="24" y="474" xml:space="preserve"><tspan fill="#F9C80E">  Jooble:OK  USAJobs:--  USAJobsEmail:--                            </tspan></text>
+  <text x="24" y="498" xml:space="preserve"><tspan fill="#2DE2E6">╚════════════════════════════════════════════════════════════════════╝</tspan></text>
+  <text x="24" y="522" xml:space="preserve"><tspan fill="#2DE2E6">&gt; Select an option: </tspan><tspan fill="#AAAAAA">Goodbye!</tspan></text>
+</svg>
